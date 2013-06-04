@@ -2,3 +2,19 @@ name: jenkins
 framework:
   type: java_web
 mem: 1024M
+services:
+  ${name}-fs: filesystem
+hooks:
+  post-staging:
+    # create JENKINS_HOME directory (.jenkins) in the persistent filesystem
+    - echo "Creating JENKINS_HOME in the persistent filesystem ..."
+    - mkdir -p "$STACKATO_FILESYSTEM"/.jenkins
+    # symlink to JENKINS_HOME directory (.jenkins) in the shared filesystem
+    - echo "Symlinking to JENKINS_HOME in the persistent filesystem ..."
+    - ln -s "$STACKATO_FILESYSTEM"/.jenkins "$JENKINS_HOME"
+env:
+  # default JENKINS_HOME to HOME/.jenkins (/app/tomcat/webapps/ROOT/.jenkins)
+  JENKINS_HOME:
+    default: "$HOME/.jenkins"
+    required: y
+    prompt: "Confirm persistent JENKINS_HOME: "
